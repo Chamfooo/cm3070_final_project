@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+    <title>home</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/reset.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/common.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+  </head>
+  <body>
+    <!-- HEADER -->
+    <!-- ============================================================ -->
+    <header>
+      <nav class="header_wrap">
+        <a href="{{ url_for('index') }}">
+          <h1>Home Security System</h1>
+        </a>
+        <ul>
+          <li>
+            <a href="{{ url_for('index') }}">Home</a>
+          </li>
+          <li>
+            <a href="{{ url_for('list') }}">List</a>
+          </li>
+          <li>
+            <a href="{{ url_for('settings') }}">Setting</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+    <!-- MAIN -->
+    <!-- ============================================================ -->
+    <main>
+      <!-- Live Preview -->
+      <!-- ------------------------------------------------------------ -->
+      <section class="live_feed">
+        <section class="live_feed__wrap">
+          <button id="security-button">Loading...</button>
+          <div class="video-container">
+            <img src="{{ url_for('video_feed') }}" />
+          </div>
+          <div id="notification">New event detected!</div>
+        </section>
+      </section>
+      <!-- Current Event -->
+      <!-- ------------------------------------------------------------ -->
+      <section class="latest_detect">
+        <section class="latest_detect__wrap">
+          <h2>Latest Detection</h2>
+          <ul id="event-list"></ul>
+          <a class="to_list__btn" href="{{ url_for('list') }}">
+            View all detections
+          </a>
+        </section>
+      </section>
+    </main>
+    <!-- FOOTER -->
+    <!-- ============================================================ -->
+    <footer>
+      <p class="copyright">&copy; Home security app</p>
+    </footer>
+
+    <!-- SCRIPT -->
+    <!-- ============================================================ -->
+    <script>
+      function updateButtonState() {
+        fetch("/status")
+          .then((response) => response.json())
+          .then((data) => {
+            const button = document.getElementById("security-button");
+
+            if (
+              data.finishing ||
+              (data.running && data.armed == false && data.recording)
+            ) {
+              // make button color light green
+              button.innerText = "Stopping Security...";
+              button.classList.remove("stop");
+              button.classList.add("disabled");
+              button.disabled = true;
+              // make button color red
+            } else if (data.running && data.armed) {
+              button.innerText = "Disarm System";
+              button.classList.add("stop");
+              button.classList.remove("disabled");
+              button.disabled = false;
+              // make button color green
+            } else {
+              button.innerText = "Arm System";
+              button.classList.remove("disabled");
+              button.classList.remove("stop");
+              button.disabled = false;
+            }
+          });
+      }
+
+      // Update the button state on page load and every 1 second
+      updateButtonState();
+      setInterval(updateButtonState, 1000);
+
+      // Add click event listener to toggle security
+      document
+        .getElementById("security-button")
+        .addEventListener("click", function () {
+          fetch("/toggle_security").then((response) => {
+            if (response.redirected) {
+              window.location.reload();
+            }
+          });
+        });
+
+      // Notification
+      var socket = io();
+      socket.on("new_event", function (msg) {
+        var notification = document.getElementById("notification");
+        notification.style.display = "block";
+        setTimeout(function () {
+          notification.style.display = "none";
+        }, 3000);
+
+        // Fetch new events and update the event list
+        fetchLatestEvents();
+      });
+
+      // Show latest 3 object detection
+      function fetchLatestEvents() {
+        fetch(`/latest_events?limit=${3}`)
+          .then((response) => response.json())
+          .then((events) => {
+            const eventList = document.getElementById("event-list");
+            eventList.innerHTML = "";
+            events.forEach((event) => {
+              const li = document.createElement("li");
+              li.innerHTML = `
+                            <a href="/event/${event.id}">Event at ${event.timestamp}
+                            <img src="/static/${event.thumbnail_path}" alt="Thumbnail">
+                            </a>
+                        `;
+              eventList.appendChild(li);
+            });
+          });
+      }
+      // Call fetchLatestEvents on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        fetchLatestEvents();
+      });
+    </script>
+  </body>
+</html>

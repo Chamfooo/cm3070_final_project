@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+    <title>list</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/reset.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/common.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+  </head>
+  <body>
+    <!-- HEADER -->
+    <!-- ============================================================ -->
+    <header>
+      <nav class="header_wrap">
+        <a href="{{ url_for('index') }}">
+          <h1>Home Security System</h1>
+        </a>
+        <ul>
+          <li>
+            <a href="{{ url_for('index') }}">Home</a>
+          </li>
+          <li>
+            <a href="{{ url_for('list') }}">List</a>
+          </li>
+          <li>
+            <a href="{{ url_for('settings') }}">Setting</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+    <!-- MAIN -->
+    <!-- ============================================================ -->
+    <main>
+      <!-- ------------------------------------------------------------ -->
+      <section class="all_detection">
+        <section class="all_detection__wrap">
+          <h2 class="text-center">Event List</h2>
+
+          <ul id="event-list"></ul>
+
+          <div id="notification">New event detected!</div>
+        </section>
+      </section>
+    </main>
+    <!-- FOOTER -->
+    <!-- ============================================================ -->
+    <footer>
+      <p class="copyright">&copy; Home security app</p>
+    </footer>
+
+    <!-- SCRIPT -->
+    <!-- ============================================================ -->
+    <script>
+      var socket = io();
+
+      socket.on("new_event", function (msg) {
+        var notification = document.getElementById("notification");
+        notification.style.display = "block";
+        setTimeout(function () {
+          notification.style.display = "none";
+        }, 3000);
+
+        // Fetch new events and update the event list
+        fetchLatestEvents();
+      });
+
+      function fetchLatestEvents() {
+        fetch(`/latest_events?limit=${15}`)
+          .then((response) => response.json())
+          .then((events) => {
+            const eventList = document.getElementById("event-list");
+            eventList.innerHTML = "";
+            events.forEach((event) => {
+              const li = document.createElement("li");
+              li.innerHTML = `
+                            <a href="/event/${event.id}">
+                              <span>Event at ${event.timestamp}</span>
+                              <img src="/static/${event.thumbnail_path}" alt="Thumbnail">
+                            </a>
+                            <a class="delete__btn" href="/delete/${event.id}">Delete</a>
+                        `;
+              eventList.appendChild(li);
+            });
+          });
+      }
+      // Call fetchLatestEvents on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        fetchLatestEvents();
+      });
+    </script>
+  </body>
+</html>

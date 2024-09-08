@@ -1,0 +1,189 @@
+/* 
+=======================================================
+GENERAL
+=======================================================
+*/
+
+* {
+  line-height: 1.5;
+}
+
+body {
+  width: 100%;
+  height: 100%;
+  margin: auto;
+  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+}
+
+@media screen and (max-width: 480px) {
+  body {
+    font-size: 1rem;
+  }
+}
+
+/* 
+=======================================================
+h1 - h4
+=======================================================
+*/
+
+@media screen and (max-width: 480px) {
+  h1 {
+    font-size: 1.5rem;
+  }
+}
+
+h2 {
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--title_font);
+  width: fit-content;
+  padding: 0 0.5rem 0 0.25rem;
+  border-bottom: 1px solid var(--title_font);
+}
+
+@media screen and (max-width: 480px) {
+  h2 {
+    font-size: 1.25rem;
+  }
+}
+
+h3 {
+  font-size: 1.3rem;
+}
+
+@media screen and (max-width: 480px) {
+  h3 {
+    font-size: 1rem;
+  }
+}
+
+h4 {
+  font-size: 1.1rem;
+}
+
+@media screen and (max-width: 480px) {
+  h4 {
+    font-size: 0.95rem;
+  }
+}
+
+/* 
+=======================================================
+Default tags
+=======================================================
+*/
+p,
+a,
+li {
+  font-style: normal;
+  font-size: 1rem;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+input {
+  appearance: none;
+  height: 100%;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"] {
+  width: 100%;
+  height: 100%;
+}
+
+label {
+  font-size: 1rem;
+  color: #444;
+  line-height: 28px;
+}
+
+a {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* 
+=======================================================
+HEADER
+=======================================================
+*/
+header {
+  width: 100%;
+  height: fit-content;
+  max-height: 10vh;
+  background-color: var(--header_bg);
+  border-bottom: 1px solid var(--main);
+}
+
+.header_wrap {
+  max-width: var(--width_pc);
+  padding: var(--padding_pc) 0;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+header ul {
+  display: flex;
+  gap: var(--gap_pc);
+}
+
+header h1,
+header a {
+  color: var(--main);
+}
+
+header h1 {
+  line-height: 1;
+}
+
+header a {
+  font-size: larger;
+}
+
+@media screen and (max-width: 480px) {
+  .header_wrap {
+    margin: 0 1rem;
+  }
+
+  header h1 {
+    font-size: 1rem;
+  }
+  
+}
+
+/* 
+=======================================================
+MAIN
+=======================================================
+*/
+main {
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* 
+=======================================================
+FOOTER
+=======================================================
+*/
+footer {
+  position: sticky;
+  top: 100vh;
+  background-color: var(--footer_bg);
+  text-align: center;
+  font-weight: bolder;
+}
+
+footer .copyright {
+  margin: auto;
+  color: white;
+  padding: 1rem 0;
+}

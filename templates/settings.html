@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+    <title>home</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/reset.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/common.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+  </head>
+  <body>
+    <!-- HEADER -->
+    <!-- ============================================================ -->
+    <header>
+      <nav class="header_wrap">
+        <a href="{{ url_for('index') }}">
+          <h1>Home Security System</h1>
+        </a>
+        <ul>
+          <li>
+            <a href="{{ url_for('index') }}">Home</a>
+          </li>
+          <li>
+            <a href="{{ url_for('list') }}">List</a>
+          </li>
+          <li>
+            <a href="{{ url_for('settings') }}">Setting</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+    <!-- MAIN -->
+    <!-- ============================================================ -->
+    <main>
+      <section class="setting">
+        <section class="setting__wrap">
+          <h2>User Settings</h2>
+          <!-- Form -->
+          <!-- ------------------------------------------------------------ -->
+          <form id="settings-form">
+            <!-- Name -->
+            <div class="form__item">
+              <label for="name">Name:</label>
+              <input type="text" id="name" name="name" /><br /><br />
+            </div>
+            <!-- Email -->
+            <div class="form__item">
+              <label for="email">Email:</label>
+              <input type="email" id="email" name="email" /><br /><br />
+            </div>
+            <!-- Filter -->
+            <div class="form__filter">
+              <label for="filter">Known Objects:</label>
+              <div id="filters-container"></div>
+              <button class="add__btn" type="button" onclick="addFilterBox()">Add Filter</button>
+            </div>
+            <!-- Update -->
+            <button class="update__btn" type="button" onclick="updateSettings()">
+              Update Settings
+            </button>
+          </form>
+        </section>
+      </section>
+    </main>
+    <!-- FOOTER -->
+    <!-- ============================================================ -->
+    <footer>
+      <p class="copyright">&copy; Home security app</p>
+    </footer>
+
+    <!-- SCRIPT -->
+    <!-- ============================================================ -->
+
+    <script>
+      function addFilterBox(value = "") {
+        const container = document.getElementById("filters-container");
+        const filterDiv = document.createElement("div");
+        filterDiv.classList.add("filter__item");
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.name = "filter";
+        input.value = value;
+
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.innerText = "Remove";
+        removeButton.onclick = () => container.removeChild(filterDiv);
+
+        filterDiv.appendChild(input);
+        filterDiv.appendChild(removeButton);
+        container.appendChild(filterDiv);
+      }
+
+      async function updateSettings() {
+        const form = document.getElementById("settings-form");
+        const formData = new FormData(form);
+        const filterValues = [];
+
+        for (const value of formData.getAll("filter")) {
+          if (value.trim() !== "") {
+            filterValues.push(value.trim());
+          }
+        }
+
+        formData.delete("filter");
+        filterValues.forEach((value) => formData.append("filter", value));
+
+        const response = await fetch("/update_settings", {
+          method: "POST",
+          body: formData,
+        });
+
+        const result = await response.json();
+        alert(result.status);
+      }
+
+      async function loadSettings() {
+        const response = await fetch("/get_settings");
+        const settings = await response.json();
+
+        document.getElementById("name").value = settings.name || "";
+        document.getElementById("email").value = settings.email || "";
+
+        if (settings.filters && settings.filters.length > 0) {
+          settings.filters.forEach((filter) => addFilterBox(filter));
+        }
+        addFilterBox();
+      }
+
+      loadSettings();
+    </script>
+  </body>
+</html>
